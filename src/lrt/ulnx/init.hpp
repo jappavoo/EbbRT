@@ -24,7 +24,11 @@ namespace ebbrt {
      The currently active context, if one is active.
      This is used by the lrt to access context-local data.
   */
+#ifdef ARCH_POWERPC64
+  extern Context* active_context;
+#else
   extern __thread Context* active_context;
+#endif
 }
 
 #endif

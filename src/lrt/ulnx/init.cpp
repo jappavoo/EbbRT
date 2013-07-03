@@ -20,7 +20,11 @@
 #include "lrt/event_impl.hpp"
 #include "lrt/ulnx/init.hpp"
 
+#ifdef ARCH_POWERPC64
+ebbrt::Context* ebbrt::active_context;
+#else
 __thread ebbrt::Context* ebbrt::active_context;
+#endif 
 
 ebbrt::EbbRT::EbbRT() : initialized_{false}, next_id_{0},
   miss_handler_(&lrt::trans::init_root)
