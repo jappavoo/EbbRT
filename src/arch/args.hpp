@@ -20,6 +20,8 @@
 
 #ifdef ARCH_X86_64
 #include "arch/x86_64/args.hpp"
+#elif ARCH_POWERPC64
+#include "arch/powerpc64/args.hpp"
 #else
 #error "Unsupported Architecture"
 #endif

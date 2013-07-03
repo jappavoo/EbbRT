@@ -28,6 +28,7 @@
 #include "lrt/EbbId.hpp"
 #include "lrt/Location.hpp"
 #include "lrt/trans_impl.hpp"
+#include "lrt/EbbRoot.hpp"
 
 namespace ebbrt {
   namespace lrt {
@@ -49,10 +50,10 @@ namespace ebbrt {
     friend class Context;
     friend const lrt::trans::RootBinding&
     lrt::trans::initial_root_table(unsigned);
-    friend void lrt::trans::install_miss_handler(EbbRoot*);
+    friend void lrt::trans::install_miss_handler(lrt::trans::EbbRoot*);
     friend bool lrt::trans::_trans_precall(Args*,
                                            ptrdiff_t,
-                                           FuncRet*);
+                                           lrt::trans::FuncRet*);
     friend void* lrt::trans::_trans_postcall(void*);
     friend class lrt::trans::InitRoot;
 
@@ -110,13 +111,13 @@ namespace ebbrt {
     friend void lrt::trans::cache_rep(lrt::trans::EbbId, lrt::trans::EbbRep*);
     friend const lrt::trans::RootBinding&
     lrt::trans::initial_root_table(unsigned);
-    friend void lrt::trans::install_miss_handler(EbbRoot*);
+    friend void lrt::trans::install_miss_handler(lrt::trans::EbbRoot*);
     friend void lrt::event::_event_altstack_push(uintptr_t);
     friend uintptr_t lrt::event::_event_altstack_pop();
     friend void lrt::event::register_fd(int, uint32_t, uint8_t);
     friend bool lrt::trans::_trans_precall(Args*,
                                            ptrdiff_t,
-                                           FuncRet*);
+                                           lrt::trans::FuncRet*);
     friend void* lrt::trans::_trans_postcall(void*);
     friend class lrt::trans::InitRoot;
     friend lrt::event::Location lrt::event::get_location();

@@ -98,7 +98,11 @@ int main()
 {
   ebbrt::EbbRT instance;
 
+#ifdef ARCH_POWERPC64
+  std::thread threads[16];
+#else
   std::thread threads[std::thread::hardware_concurrency()];
+#endif
   for (auto& thread : threads) {
     thread = std::thread([&]{ebbrt::Context context{instance};});
   }

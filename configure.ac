@@ -33,9 +33,12 @@ AS_CASE([$host_cpu], [x86_64],
                      [AC_DEFINE([ARCH_X86_64], [1], [x86_64 architecture])],
                      [powerpc],
                      [AC_DEFINE([ARCH_POWERPC], [1], [powerpc32 architecture])],
+		     [powerpc64],
+                     [AC_DEFINE([ARCH_POWERPC64], [1], [powerpc64 architecture])],
                      [AC_MSG_ERROR([not on a supported architecture])])
 AM_CONDITIONAL([ARCH_X86_64], [test x$host_cpu == xx86_64])
 AM_CONDITIONAL([ARCH_POWERPC], [test x$host_cpu == xpowerpc])
+AM_CONDITIONAL([ARCH_POWERPC64], [test x$host_cpu == xpowerpc64])
 
 # Baremetal or Linux build
 AC_ARG_ENABLE([baremetal],

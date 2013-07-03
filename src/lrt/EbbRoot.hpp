@@ -18,6 +18,8 @@
 #ifndef EBBRT_LRT_EBBROOT_HPP
 #define EBBRT_LRT_EBBROOT_HPP
 
+#include "lrt/EbbId.hpp"
+
 namespace ebbrt {
   class Args;
   namespace lrt {

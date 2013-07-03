@@ -17,10 +17,13 @@
 */
 #include <cstring>
 #include <new>
+#include <cstdlib>
+
+#include <stdlib.h>
 
 #include "ebb/DistributedRoot.hpp"
 #include "ebb/MemoryAllocator/SimpleMemoryAllocator.hpp"
-#include "lrt/bare/mem_impl.hpp"
+#include "lrt/mem_impl.hpp"
 #include "lrt/trans_impl.hpp"
 
 using namespace ebbrt;

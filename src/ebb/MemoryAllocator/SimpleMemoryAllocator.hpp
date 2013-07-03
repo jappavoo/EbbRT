@@ -35,7 +35,9 @@ namespace ebbrt {
     static void* operator new(size_t size);
     static void operator delete(void* p);
   private:
+#ifdef ARCH_X86_64
     char* start_;
+#endif
     char* current_;
     char* end_;
   };

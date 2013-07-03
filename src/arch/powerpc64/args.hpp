@@ -15,24 +15,15 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef EBBRT_EBB_EBB_HPP
-#define EBBRT_EBB_EBB_HPP
+#ifndef EBBRT_ARCH_ARGS_HPP
+#error "Don't include this file directly"
+#endif
 
-#include "lrt/event.hpp"
-#include "lrt/trans.hpp"
-#include "lrt/EbbId.hpp"
-#include "lrt/EbbRef.hpp"
-#include "lrt/EbbRep.hpp"
-#include "lrt/EbbRoot.hpp"
-#include "lrt/Location.hpp"
+#include "arch/args.hpp"
+#include <cstdint>
 
 namespace ebbrt {
-  using lrt::trans::EbbRef;
-  using lrt::trans::EbbId;
-  using lrt::trans::EbbRep;
-  using lrt::trans::EbbRoot;
-  using lrt::event::Location;
-  using lrt::event::get_location;
+  class Args {
+  public:
+  };
 }
-
-#endif

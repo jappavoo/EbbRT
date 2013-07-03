@@ -15,24 +15,11 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef EBBRT_EBB_EBB_HPP
-#define EBBRT_EBB_EBB_HPP
+#ifndef EBBRT_LRT_MEM_IMPL_HPP
+#define EBBRT_LRT_MEM_IMPL_HPP
 
-#include "lrt/event.hpp"
-#include "lrt/trans.hpp"
-#include "lrt/EbbId.hpp"
-#include "lrt/EbbRef.hpp"
-#include "lrt/EbbRep.hpp"
-#include "lrt/EbbRoot.hpp"
-#include "lrt/Location.hpp"
-
-namespace ebbrt {
-  using lrt::trans::EbbRef;
-  using lrt::trans::EbbId;
-  using lrt::trans::EbbRep;
-  using lrt::trans::EbbRoot;
-  using lrt::event::Location;
-  using lrt::event::get_location;
-}
+#ifdef LRT_BARE
+#include "lrt/bare/mem_impl.hpp"
+#endif
 
 #endif

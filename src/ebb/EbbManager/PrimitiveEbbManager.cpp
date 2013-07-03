@@ -182,8 +182,13 @@ ebbrt::PrimitiveEbbManagerRoot::PreCall(Args* args,
     if (fnum == vtable_index<PrimitiveEbbManager>
         (&PrimitiveEbbManager::CacheRep)) {
       //FIXME: not portable
+#ifdef ARCH_X86_64
       EbbId target_id = args->rsi;
       EbbRep* target_rep = reinterpret_cast<EbbRep*>(args->rdx);
+#else
+      EbbId target_id = 0;
+      EbbRep* target_rep = reinterpret_cast<EbbRep*>(0);
+#endif
       local_cache_rep(target_id, target_rep);
       return false;
     } else {
@@ -203,8 +208,13 @@ ebbrt::PrimitiveEbbManagerRoot::PreCall(Args* args,
     if (fnum == vtable_index<PrimitiveEbbManager>
         (&PrimitiveEbbManager::CacheRep)) {
       //FIXME: not portable
+#ifdef ARCH_X86_64
       EbbId target_id = args->rsi;
       EbbRep* target_rep = reinterpret_cast<EbbRep*>(args->rdx);
+#else
+      EbbId target_id = 0;
+      EbbRep* target_rep = reinterpret_cast<EbbRep*>(0);
+#endif
       local_cache_rep(target_id, target_rep);
       ret = false;
     }
