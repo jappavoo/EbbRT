@@ -24,6 +24,77 @@ extern "C" {
 #include "src/app/LibFox/libfox.h"
 }
 
+#include "src/ebb/ebb.hpp"
+
+namespace ebbrt {
+  namespace fox {
+    class ScatterData : public EbbRep {
+    public:
+      virtual void set(void * data, int len) = 0;
+      virtual void get(void ** data, int *len) = 0;
+    };
+
+    class Queue : public EbbRep {
+    public:
+      virtual int enque(void * data) = 0;
+      virtual void * deque() = 0;
+    };
+
+    class Sync : public EbbRep {
+    public:
+      virtual void enter() = 0;
+    };
+
+    class GatherData : public EbbRep {
+    public:
+      virtual void add() = 0;
+      virtual void gather() = 0;
+    };
+
+    const EbbRef<ScatterData> theRDData =
+      EbbRef<ScatterData>(lrt::trans::find_static_ebb_id("RDDATA"));
+
+    const EbbRef<Queue> theTaskQ =
+      EbbRef<Queue>(lrt::trans::find_static_ebb_id("TASKS"));
+
+    const EbbRef<Sync> theTaskSync =
+      EbbRef<Sync>(lrt::trans::find_static_ebb_id("TASK_SYNC"));
+
+    const EbbRef<GatherData> theRWData =
+      EbbRef<GatherData>(lrt::trans::find_static_ebb_id("RWDATA"));
+
+  }
+}
+
+// in the middle 
+#if 0
+namespace ebbrt {
+  namespace fox {
+    class RDData : public ScatterData {
+    public:
+      virtual void set(void * data, int len);
+      virtual void get(void ** data, int *len);
+    };
+
+    class Queue : public EbbRep {
+    public:
+      virtual int enque(void * data);
+      virtual void * deque();
+    };
+
+    class Sync : public EbbRep {
+    public:
+      virtual void enter() = 0;
+    };
+
+    class GatherData : public EbbRep {
+    public:
+      virtual void add() = 0;
+      virtual void gather() = 0;
+    };
+  }
+}
+#endif
 
 struct fox_st {
 };
