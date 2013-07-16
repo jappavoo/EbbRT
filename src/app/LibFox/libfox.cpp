@@ -27,18 +27,23 @@ extern "C" {
 #include "src/ebb/ebb.hpp"
 #include "ebbs.hpp"
 
+#define TRACE printf("%s:%d:%s\n", __FILE__, __LINE__,__func__)
+
 struct fox_st {
+  ebbrt::EbbRT instance;
+  ebbrt::Context context{instance};
 };
 
 extern "C"
 int
 fox_new(fox_ptr* fhand_ptr, int nprocs, int procid)
 {
-  ebbrt::EbbRT instance;
-  ebbrt::Context context{instance};
-  context.Activate();
-  char *buf; int len;
-  ebbrt::fox::theRWData->set(&buf, len);
+  struct fox_st *fh = new fox_st;
+
+  TRACE;
+  fh->context.Activate();  
+  ebbrt::fox::theRDData->set((void *)__func__);
+  *fhand_ptr = fh;
   return 0;
 }
 
@@ -46,6 +51,7 @@ extern "C"
 int
 fox_free(fox_ptr fhand)
 {
+  TRACE;
   return 0;
 }
 
@@ -53,6 +59,7 @@ extern "C"
 int
 fox_flush(fox_ptr fhand, int term)
 {
+  TRACE;
   return 0;
 }
 
@@ -60,6 +67,7 @@ extern "C"
 int
 fox_server_add(fox_ptr fhand, const char *hostlist)
 {
+  TRACE;
   return 0;
 }
 
@@ -69,6 +77,8 @@ fox_set(fox_ptr fhand,
         const char *key, size_t key_sz,
         const char *value, size_t value_sz)
 {
+  TRACE;
+  assert(0);
   return 0;
 }
 
@@ -78,6 +88,8 @@ fox_get(fox_ptr fhand,
         const char *key, size_t key_sz,
         char **pvalue, size_t *pvalue_sz)
 {
+  TRACE;
+  assert(0);
   return 0;
 }
 
@@ -85,6 +97,7 @@ extern "C"
 int
 fox_delete(fox_ptr fhand, const char* key, size_t key_sz)
 {
+  TRACE;
   assert(0);
   return 0;
 }
@@ -96,7 +109,10 @@ fox_sync_set(fox_ptr fhand, unsigned delta,
              const char* value, size_t value_sz)
 {
   //FIXME: no semaphore stuff
-  return fox_set(fhand, key, key_sz, value, value_sz);
+  TRACE;
+  assert(strcmp(key,STR_TASK_SYNC));
+  ebbrt::fox::theTaskSync->enter((void *)__func__);
+  return 0;
 }
 
 extern "C"
@@ -106,6 +122,9 @@ fox_sync_get(fox_ptr fhand, unsigned delta,
              char **pvalue, size_t *pvalue_sz)
 {
   //FIXME: no semaphore stuff
+  TRACE;
+  assert(strcmp(key,STR_TASK_SYNC)==0);
+  ebbrt::fox::theTaskSync->enter((void *)__func__);
   return 0;
 }
 
@@ -116,6 +135,9 @@ fox_broad_set(fox_ptr fhand,
               const char *value, size_t value_sz)
 {
   //FIXME: no broadcast stuff
+  TRACE;
+  assert(strcmp(key,STR_RDDATA)==0);
+  ebbrt::fox::theRDData->set((void *)__func__);
   return 0;
 }
 
@@ -126,6 +148,9 @@ fox_broad_get(fox_ptr fhand,
               char **pvalue, size_t *pvalue_sz)
 {
   //FIXME: no broadcast stuff
+  TRACE;
+  assert(strcmp(key,STR_RDDATA)==0);
+  ebbrt::fox::theRDData->get((void *)__func__);
   return 0;
 }
 
@@ -135,6 +160,9 @@ fox_queue_set(fox_ptr fhand,
               const char *key, size_t key_sz,
               const char *value, size_t value_sz)
 {
+  TRACE;
+  assert(strcmp(key,STR_TASKS)==0);
+  ebbrt::fox::theTaskQ->enque((void *)__func__);
   return 0;
 }
 
@@ -144,6 +172,9 @@ fox_queue_get(fox_ptr fhand,
               const char *key, size_t key_sz,
               char **pvalue, size_t *pvalue_sz)
 {
+  TRACE;
+  assert(strcmp(key,STR_TASKS)==0);
+  ebbrt::fox::theTaskQ->deque((void *)__func__);
   return 0;
 }
 
@@ -153,6 +184,9 @@ fox_broad_queue_set(fox_ptr fhand,
                     const char *key, size_t key_sz,
                     const char *value, size_t value_sz)
 {
+  TRACE;
+  assert(strcmp(key,STR_TASKS)==0);
+  ebbrt::fox::theTaskQ->enque((void *)__func__);
   return 0;
 }
 
@@ -162,6 +196,9 @@ fox_dist_queue_set(fox_ptr fhand,
                    const char *key, size_t key_sz,
                    const char *value, size_t value_sz)
 {
+  TRACE;
+  assert(strcmp(key,STR_TASKS)==0);
+  ebbrt::fox::theTaskQ->enque((void *)__func__);
   return 0;
 }
 
@@ -171,6 +208,9 @@ fox_dist_queue_get(fox_ptr fhand,
                    const char *key, size_t key_sz,
                    char **pvalue, size_t *pvalue_sz)
 {
+  TRACE;
+  assert(strcmp(key,STR_TASKS)==0);
+  ebbrt::fox::theTaskQ->deque((void *)__func__);
   return 0;
 }
 
@@ -180,6 +220,9 @@ fox_reduce_set(fox_ptr fhand,
                const char *key, size_t key_sz,
                const char *value, size_t value_sz)
 {
+  TRACE;
+  assert(strcmp(key,STR_RWDATA)==0);
+  ebbrt::fox::theRWData->add((void *)__func__);
   return 0;
 }
 
@@ -190,6 +233,9 @@ fox_reduce_get(fox_ptr fhand,
                char *pvalue, size_t pvalue_sz,
                void (*reduce)(void *out, void *in))
 {
+  TRACE;
+  assert(strcmp(key,STR_RWDATA)==0);
+  ebbrt::fox::theRWData->gather((void *)__func__);
   return 0;
 }
 
@@ -199,5 +245,8 @@ fox_collect(fox_ptr fhand,
             const char *key, size_t key_sz,
             int root, int opt)
 {
+  TRACE;
+  assert(strcmp(key,STR_RWDATA)==0);
+  ebbrt::fox::theRWData->gather((void *)__func__);
   return 0;
 }

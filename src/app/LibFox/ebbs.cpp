@@ -2,6 +2,8 @@
 #include "ebbs.hpp"
 #include "ebb/SharedRoot.hpp"
 
+#define TRACE   printf("%s: called from: %s\n", __func__, (char *)data)
+
 ebbrt::EbbRoot*
 ebbrt::fox::RDData::ConstructRoot()
 {
@@ -9,13 +11,16 @@ ebbrt::fox::RDData::ConstructRoot()
 }
 
 void
-ebbrt::fox::RDData::set(void * dat, int len) 
+ebbrt::fox::RDData::set(void * data) 
 { 
+  TRACE;
 }
 
+
 void
-ebbrt::fox::RDData::get(void ** dat, int * len) 
+ebbrt::fox::RDData::get(void * data)
 { 
+  TRACE;
 }
 
 
@@ -27,11 +32,17 @@ ebbrt::fox::TaskQ::ConstructRoot()
 
 int
 ebbrt::fox::TaskQ::enque(void * data) 
-{ return 0; }
+{ 
+  TRACE;
+  return 0;
+}
 
 void *
-ebbrt::fox::TaskQ::deque() 
-{ return NULL; }
+ebbrt::fox::TaskQ::deque(void * data) 
+{
+  TRACE;
+  return NULL; 
+}
 
 
 ebbrt::EbbRoot*
@@ -41,8 +52,10 @@ ebbrt::fox::TaskSync::ConstructRoot()
 }
 
 void
-ebbrt::fox::TaskSync::enter() 
-{ }
+ebbrt::fox::TaskSync::enter(void * data) 
+{ 
+  TRACE;
+}
 
 ebbrt::EbbRoot*
 ebbrt::fox::RWData::ConstructRoot()
@@ -51,13 +64,15 @@ ebbrt::fox::RWData::ConstructRoot()
 }
 
 void
-ebbrt::fox::RWData::add(void *d)
+ebbrt::fox::RWData::add(void * data)
 {
+  TRACE;
 }
 
 void
-ebbrt::fox::RWData::gather(void **data)
+ebbrt::fox::RWData::gather(void * data)
 {
+  TRACE;
 }
 
 

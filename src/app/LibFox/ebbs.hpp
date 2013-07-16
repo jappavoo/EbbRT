@@ -1,35 +1,35 @@
 #ifndef __FOX_EBBS_H__
 #define __FOX_EBBS_H__
 
-#define STR_RDDATA    "RDDATA"
-#define STR_RWDATA    "RWDATA"
-#define STR_TASKS     "TASKS"
-#define STR_TASK_SYNC "TASK_SYNC"
+#define STR_RDDATA    "RD"
+#define STR_RWDATA    "RW"
+#define STR_TASKS     "TK"
+#define STR_TASK_SYNC "TKS"
 
 
 namespace ebbrt {
   namespace fox {
     class ScatterData : public EbbRep {
     public:
-      virtual void set(void * data, int len) = 0;
-      virtual void get(void ** data, int *len) = 0;
+      virtual void set(void * data) = 0;
+      virtual void get(void * data) = 0;
     };
 
     class Queue : public EbbRep {
     public:
       virtual int enque(void * data) = 0;
-      virtual void * deque() = 0;
+      virtual void * deque(void * data) = 0;
     };
 
     class Sync : public EbbRep {
     public:
-      virtual void enter() = 0;
+      virtual void enter(void * data) = 0;
     };
 
     class GatherData : public EbbRep {
     public:
-      virtual void add(void *data) = 0;
-      virtual void gather(void **data) = 0;
+      virtual void add(void * data) = 0;
+      virtual void gather(void * data) = 0;
     };
 
     const EbbRef<ScatterData> theRDData =
@@ -52,28 +52,28 @@ namespace ebbrt {
     class RDData : public ScatterData {
     public:
       static EbbRoot * ConstructRoot();
-      virtual void set(void * data, int len) override;
-      virtual void get(void ** data, int *len) override;
+      virtual void set(void * data) override;
+      virtual void get(void * data) override;
     };
 
     class TaskQ : public Queue  {
     public:
       static EbbRoot * ConstructRoot();
       virtual int enque(void * data) override;
-      virtual void * deque() override;
+      virtual void * deque(void * data) override;
     };
 
     class TaskSync : public Sync  {
     public:
       static EbbRoot * ConstructRoot();
-      virtual void enter() override;
+      virtual void enter(void * data) override;
     };
 
     class RWData : public GatherData {
     public:
       static EbbRoot * ConstructRoot();
-      virtual void add(void *data) override;
-      virtual void gather(void **data) override;
+      virtual void add(void * data) override;
+      virtual void gather(void * data) override;
     };
   }
 }
