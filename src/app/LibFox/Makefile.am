@@ -19,6 +19,7 @@ EXTRA_PROGRAMS += \
 
 src_app_LibFox_mcphoton_SOURCES = \
 	src/app/LibFox/app.cpp \
+	src/app/LibFox/ebbs.cpp \
 	src/app/LibFox/libfox.cpp \
 	src/app/LibFox/photon.c
 

@@ -18,16 +18,37 @@
 
 #include "app/app.hpp"
 #include "ebb/EbbManager/PrimitiveEbbManager.hpp"
+#include "ebbs.hpp"
 
 constexpr ebbrt::app::Config::InitEbb init_ebbs[] = {
   {
     .create_root = ebbrt::PrimitiveEbbManagerConstructRoot,
     .name = "EbbManager"
+  },
+  {
+    .create_root = ebbrt::fox::RDData::ConstructRoot,
+    .name = STR_RDDATA
+  },
+  {
+    .create_root = ebbrt::fox::TaskQ::ConstructRoot,
+    .name = STR_TASKS
+  },
+  {
+    .create_root = ebbrt::fox::TaskSync::ConstructRoot,
+    .name = STR_TASK_SYNC
+  },
+  {
+    .create_root = ebbrt::fox::RWData::ConstructRoot,
+    .name = STR_RWDATA
   }
 };
 
 constexpr ebbrt::app::Config::StaticEbbId static_ebbs[] = {
-  {.name = "EbbManager", .id = 2},
+  {.name = "EbbManager",  .id = 2},
+  {.name = STR_RDDATA,    .id = 3},
+  {.name = STR_TASKS,     .id = 4},
+  {.name = STR_TASK_SYNC, .id = 5},
+  {.name = STR_RWDATA,    .id = 6}
 };
 
 const ebbrt::app::Config ebbrt::app::config = {
