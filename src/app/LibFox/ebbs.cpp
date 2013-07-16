@@ -10,11 +10,13 @@ ebbrt::fox::RDData::ConstructRoot()
 
 void
 ebbrt::fox::RDData::set(void * dat, int len) 
-{ }
+{ 
+}
 
 void
 ebbrt::fox::RDData::get(void ** dat, int * len) 
-{ }
+{ 
+}
 
 
 ebbrt::EbbRoot*

@@ -37,6 +37,8 @@ fox_new(fox_ptr* fhand_ptr, int nprocs, int procid)
   ebbrt::EbbRT instance;
   ebbrt::Context context{instance};
   context.Activate();
+  char *buf; int len;
+  ebbrt::fox::theRWData->set(&buf, len);
   return 0;
 }
 
