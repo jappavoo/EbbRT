@@ -25,6 +25,7 @@ constexpr ebbrt::app::Config::InitEbb init_ebbs[] = {
     .create_root = ebbrt::PrimitiveEbbManagerConstructRoot,
     .name = "EbbManager"
   },
+#if 0
   {
     .create_root = ebbrt::fox::RDData::ConstructRoot,
     .name = STR_RDDATA
@@ -41,14 +42,22 @@ constexpr ebbrt::app::Config::InitEbb init_ebbs[] = {
     .create_root = ebbrt::fox::RWData::ConstructRoot,
     .name = STR_RWDATA
   }
+#endif
+  {
+    .create_root = ebbrt::fox::Dictionary::ConstructRoot,
+    .name = STR_HASH
+  }
 };
 
 constexpr ebbrt::app::Config::StaticEbbId static_ebbs[] = {
   {.name = "EbbManager",  .id = 2},
+#if 0
   {.name = STR_RDDATA,    .id = 3},
   {.name = STR_TASKS,     .id = 4},
   {.name = STR_TASK_SYNC, .id = 5},
-  {.name = STR_RWDATA,    .id = 6}
+  {.name = STR_RWDATA,    .id = 6},
+#endif
+  {.name = STR_HASH,      .id = 7}
 };
 
 const ebbrt::app::Config ebbrt::app::config = {
