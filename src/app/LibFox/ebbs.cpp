@@ -1,6 +1,7 @@
 #include "src/ebb/ebb.hpp"
 #include "ebbs.hpp"
 #include "ebb/SharedRoot.hpp"
+#include <cstring>
 
 #define TRACE   printf("%s: called from: %s\n", __func__, (char *)data)
 
@@ -11,16 +12,20 @@ ebbrt::fox::RDData::ConstructRoot()
 }
 
 void
-ebbrt::fox::RDData::set(void * data) 
+ebbrt::fox::RDData::set(const void * data, size_t len) 
 { 
-  TRACE;
+  buf = malloc(len);
+  memcpy(buf, data, len);
+  buf_len = len;
 }
 
 
-void
-ebbrt::fox::RDData::get(void * data)
+void *
+ebbrt::fox::RDData::get(size_t *len)
 { 
-  TRACE;
+  void *data = buf;
+  *len = buf_len;
+  return data;
 }
 
 
@@ -31,17 +36,26 @@ ebbrt::fox::TaskQ::ConstructRoot()
 }
 
 int
-ebbrt::fox::TaskQ::enque(void * data) 
+ebbrt::fox::TaskQ::enque(const void * data, size_t len) 
 { 
-  TRACE;
+  char *p;
+  p = (char *)malloc(len);
+  memcpy(p, data, len);
+  myqueue.emplace(p, len);
   return 0;
 }
 
 void *
-ebbrt::fox::TaskQ::deque(void * data) 
+ebbrt::fox::TaskQ::deque(size_t *len) 
 {
-  TRACE;
-  return NULL; 
+  void *data;
+  struct el &hd = myqueue.front();
+  // note, data allocated at start, returns pointer freed by 
+  // callee
+  data = hd.ptr;
+  *len = hd.len;
+  myqueue.pop();
+  return data; 
 }
 
 
@@ -52,7 +66,7 @@ ebbrt::fox::TaskSync::ConstructRoot()
 }
 
 void
-ebbrt::fox::TaskSync::enter(void * data) 
+ebbrt::fox::TaskSync::enter(const void * data) 
 { 
   TRACE;
 }
@@ -64,15 +78,30 @@ ebbrt::fox::RWData::ConstructRoot()
 }
 
 void
-ebbrt::fox::RWData::add(void * data)
+ebbrt::fox::RWData::add(const void * data, size_t len)
 {
   TRACE;
+  char *p;
+  p = (char *)malloc(len);
+  memcpy(p, data, len);
+  myqueue.emplace(p, len);
+  return ;
 }
 
-void
-ebbrt::fox::RWData::gather(void * data)
+// FIXME: this should return all the data from all the adds
+void *
+ebbrt::fox::RWData::gather(size_t *len)
 {
-  TRACE;
+  struct el &hd = myqueue.front();
+  void *data;
+
+  // TRACE;
+  // note, data allocated at start, returns pointer freed by 
+  // callee
+  data = hd.ptr;
+  *len = hd.len;
+  myqueue.pop();
+  return data; 
 }
 
 
