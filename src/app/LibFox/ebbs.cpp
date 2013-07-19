@@ -3,7 +3,7 @@
 #include "ebb/SharedRoot.hpp"
 #include <cstring>
 
-#define TRACE   printf("%s:%d:%s: called from: %s\n", __FILE__, __LINE__, __PRETTY_FUNCTION__, (char *)data)
+#define TRACE   printf("> %s:%d:%s\n", __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
 
 ebbrt::EbbRoot*
@@ -13,10 +13,24 @@ ebbrt::fox::Hash::ConstructRoot()
 }
 
 
+ebbrt::fox::Hash::Hash()
+{
+  //FIXME:  Not really sure I like public constructors when then 
+  //        reps really should only be constructed by the root
+
+  // for completelness we put ourselves in the dictionary
+  set(STR_HASH, static_cast<EbbRef<Object>>(theHash));
+
+  // put the rest of the well known instances in the dictionary
+  set(STR_RDDATA, static_cast<EbbRef<Object>>(theRDData));
+  set(STR_TASKS, static_cast<EbbRef<Object>>(theTaskQ));
+  set(STR_TASK_SYNC, static_cast<EbbRef<Object>>(theTaskSync));
+  set(STR_RWDATA, static_cast<EbbRef<Object>>(theRDData)); 
+}
+
 void 
 ebbrt::fox::Hash::set(const char *key, EbbRef<ebbrt::fox::Object> o)
 {
-  char data[] = "HASH_SET";
   map[key] = o;
   TRACE;
 }
@@ -24,7 +38,6 @@ ebbrt::fox::Hash::set(const char *key, EbbRef<ebbrt::fox::Object> o)
 ebbrt::lrt::trans::EbbRef<ebbrt::fox::Object> 
 ebbrt::fox::Hash::get(const char * key)
 {
-  char data[] = "HASH_GET";
   TRACE;
   std::unordered_map<std::string,EbbRef<Object>>::const_iterator got = map.find(key);
   if ( got == map.end() )

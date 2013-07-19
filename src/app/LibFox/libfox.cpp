@@ -78,7 +78,14 @@ fox_set(fox_ptr fhand,
         const char *value, size_t value_sz)
 {
   TRACE;
-  assert(0);
+  ebbrt::EbbRef<ebbrt::fox::Object> o= ebbrt::fox::theHash->get(key);
+
+  if (o != ebbrt::EbbRef<ebbrt::fox::Object>(ebbrt::NULLID)) assert(0); // should not exist yet
+  
+  // add code to allocate and a new object and put it in the hash
+  // JA NOTE: THIS IS NATURAL C++ BUT DANGEROUS CO code as  value() is a deref and could fail
+  o->value().set(value, value_sz);
+  ebbrt::fox::theHash->set(key, o);
   return 0;
 }
 
@@ -89,7 +96,13 @@ fox_get(fox_ptr fhand,
         char **pvalue, size_t *pvalue_sz)
 {
   TRACE;
-  assert(0);
+  ebbrt::EbbRef<ebbrt::fox::Object> o= ebbrt::fox::theHash->get(key);
+  if (o != ebbrt::EbbRef<ebbrt::fox::Object>(ebbrt::NULLID)) {
+    o->value().get(pvalue, pvalue_sz);
+  } else {
+    *pvalue = NULL;
+    *pvalue_sz = 0;
+  }
   return 0;
 }
 
@@ -108,9 +121,11 @@ fox_sync_set(fox_ptr fhand, unsigned delta,
              const char* key, size_t key_sz,
              const char* value, size_t value_sz)
 {
+  
   //FIXME: no semaphore stuff
   TRACE;
-  assert(strcmp(key,STR_TASK_SYNC));
+  assert(strcmp(key,STR_TASK_SYNC)==0);
+  assert(ebbrt::fox::theTaskSync == static_cast<ebbrt::EbbRef<ebbrt::fox::Sync>>(ebbrt::fox::theHash->get(key)));
   ebbrt::fox::theTaskSync->enter((void *)__func__);
   return 0;
 }

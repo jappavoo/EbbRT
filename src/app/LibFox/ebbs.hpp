@@ -23,12 +23,13 @@ namespace ebbrt {
 
     class  Value {
       char *bytes_;
-      int len_;
+      size_t len_;
       friend Object;
     public:
       Value() : bytes_(NULL), len_(0) {}
-      char *bytes() { return bytes_; }
-      int   len() { return len_; }
+      void get(char **b, size_t *l) { *b = bytes_; *l = len_; }
+      void set(const char *b, size_t
+ l) { bytes_ = (char *)b; len_ = l; }
     };
 
     class Object : public EbbRep {
@@ -94,6 +95,7 @@ namespace ebbrt {
       std::unordered_map<std::string, EbbRef<Object>> map;
     public:
       static EbbRoot * ConstructRoot();
+      Hash();
       virtual EbbRef<Object> get(const char *key) override;
       virtual void set(const char *key, EbbRef<Object> obj) override;
     };
