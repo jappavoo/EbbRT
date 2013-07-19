@@ -2,7 +2,31 @@
 #include "ebbs.hpp"
 #include "ebb/SharedRoot.hpp"
 
-#define TRACE   printf("%s: called from: %s\n", __func__, (char *)data)
+#define TRACE   printf("%s:%d:%s: called from: %s\n", __FILE__, __LINE__, __PRETTY_FUNCTION__, (char *)data)
+
+
+ebbrt::EbbRoot*
+ebbrt::fox::Hash::ConstructRoot()
+{
+  return new SharedRoot<RDData>;
+}
+
+
+void 
+ebbrt::fox::Hash::set(const char *key, EbbRef<ebbrt::fox::Object> o)
+{
+  char data[] = "HASH_SET";
+  map[key] = o;
+  TRACE;
+}
+
+ebbrt::lrt::trans::EbbRef<ebbrt::fox::Object> 
+ebbrt::fox::Hash::get(const char * key)
+{
+  char data[] = "HASH_GET";
+  TRACE;
+  return map[key];
+}
 
 ebbrt::EbbRoot*
 ebbrt::fox::RDData::ConstructRoot()

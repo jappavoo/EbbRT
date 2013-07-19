@@ -1,6 +1,7 @@
 #ifndef __FOX_EBBS_H__
 #define __FOX_EBBS_H__
 
+
 #define STR_RDDATA    "RD"
 #define STR_RWDATA    "RW"
 #define STR_TASKS     "TK"
@@ -9,34 +10,54 @@
 
 namespace ebbrt {
   namespace fox {
-    class Dictionary : public EbbRep {
+    class Object;
+
+    class  Value {
+      char *bytes_;
+      int len_;
+      friend Object;
     public:
-      virtual void get(void * data) = 0;
-      virtual void set(void * data) = 0;
-    }
-    class ScatterData : public EbbRep {
+      Value() : bytes_(NULL), len_(0) {}
+      char *bytes() { return bytes_; }
+      int   len() { return len_; }
+    };
+
+    class Object : public EbbRep {
+      Value val;
+    public:
+      //      Object(const char *str);
+      virtual Value value() { return val; }
+    };
+
+    class Dictionary : public Object {
+    public:
+      virtual EbbRef<Object> get(const char *key) = 0;
+      virtual void set(const char *key, EbbRef<Object> obj) = 0;
+    };
+
+    class ScatterData : public Object {
     public:
       virtual void set(void * data) = 0;
       virtual void get(void * data) = 0;
     };
 
-    class Queue : public EbbRep {
+    class Queue : public Object {
     public:
       virtual int enque(void * data) = 0;
       virtual void * deque(void * data) = 0;
     };
 
-    class Sync : public EbbRep {
+    class Sync : public Object {
     public:
       virtual void enter(void * data) = 0;
     };
 
-    class GatherData : public EbbRep {
+    class GatherData : public Object {
     public:
       virtual void add(void * data) = 0;
       virtual void gather(void * data) = 0;
     };
-#if 0
+
     const EbbRef<ScatterData> theRDData =
       EbbRef<ScatterData>(lrt::trans::find_static_ebb_id(STR_RDDATA));
 
@@ -48,19 +69,20 @@ namespace ebbrt {
 
     const EbbRef<GatherData> theRWData =
       EbbRef<GatherData>(lrt::trans::find_static_ebb_id(STR_RWDATA));
-#endif
+
     const EbbRef<Dictionary> theHash = 
-      EbbRef<Dictonary>(lrt::trans::find_static_ebb_id(STR_HASH));
+      EbbRef<Dictionary>(lrt::trans::find_static_ebb_id(STR_HASH));
   }
 }
 
 namespace ebbrt {
   namespace fox {
     class Hash : public Dictionary {
+      std::unordered_map<std::string, EbbRef<Object>> map;
     public:
       static EbbRoot * ConstructRoot();
-      virtual void set(void * data) override;
-      virtual void get(void * data) override;
+      virtual EbbRef<Object> get(const char *key) override;
+      virtual void set(const char *key, EbbRef<Object> obj) override;
     };
 
     class RDData : public ScatterData {

@@ -42,7 +42,6 @@ fox_new(fox_ptr* fhand_ptr, int nprocs, int procid)
 
   TRACE;
   fh->context.Activate();  
-  ebbrt::fox::theHash->set((void *)__func__);
   *fhand_ptr = fh;
   return 0;
 }

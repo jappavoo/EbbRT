@@ -76,6 +76,8 @@ namespace ebbrt {
         {
           return id_;
         }
+
+	//	constexpr explicit EbbRef(EbbRef<T> &ref) : id_{ref} {}
       private:
         /**
          * @brief And in the end, the ebb you take is equal to the ebb you make.
