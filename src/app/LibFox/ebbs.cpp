@@ -9,7 +9,7 @@
 ebbrt::EbbRoot*
 ebbrt::fox::Hash::ConstructRoot()
 {
-  return new SharedRoot<RDData>;
+  return new SharedRoot<Hash>;
 }
 
 

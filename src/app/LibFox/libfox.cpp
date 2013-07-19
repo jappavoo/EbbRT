@@ -152,8 +152,12 @@ fox_broad_set(fox_ptr fhand,
               const char *value, size_t value_sz)
 {
   //FIXME: no broadcast stuff
+  ebbrt::EbbRef<ebbrt::fox::Dictionary> dic = ebbrt::fox::theHash;
+  ebbrt::EbbRef<ebbrt::fox::GatherData> rw = ebbrt::fox::theRWData;
   TRACE;
+  assert(dic != rw);
   assert(strcmp(key,STR_RDDATA)==0);
+  ebbrt::fox::theHash->get(key);
   assert(ebbrt::fox::theRDData == static_cast<ebbrt::EbbRef<ebbrt::fox::RDData>>(ebbrt::fox::theHash->get(key)));
   ebbrt::fox::theRDData->set(value, value_sz);
   return 0;

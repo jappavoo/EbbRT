@@ -101,8 +101,10 @@ namespace ebbrt {
     };
 
     class RDData : public ScatterData {
+#if 0
       void *buf;
       size_t buf_len;
+#endif
     public:
       static EbbRoot * ConstructRoot();
       static EbbRef<RDData> Create();
