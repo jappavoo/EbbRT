@@ -3,12 +3,21 @@
 
 
 #define STR_RDDATA    "RD"
-#define STR_RWDATA    "RW"
+#define STR_RWDATA    "WR"
 #define STR_TASKS     "TK"
 #define STR_TASK_SYNC "TKS"
 #define STR_HASH      "HASH"
 
+#include <unordered_map>
+#include <queue>
+
+
 namespace ebbrt {
+  // JAHACK: not sure if we have one but 
+  // adding here has a hack till we
+  // talk about it
+  const EbbId NULLID = 0;
+  
   namespace fox {
     class Object;
 
@@ -37,25 +46,29 @@ namespace ebbrt {
 
     class ScatterData : public Object {
     public:
-      virtual void set(void * data) = 0;
-      virtual void get(void * data) = 0;
+      virtual void set(const void * data, size_t len) = 0;
+      virtual void *get(size_t *len) = 0;
     };
 
+    // push/pop queue
     class Queue : public Object {
     public:
-      virtual int enque(void * data) = 0;
-      virtual void * deque(void * data) = 0;
+      virtual int enque(const void * data, size_t len) = 0;
+      virtual void *deque(size_t *len) = 0;
     };
 
+    // FIXME:barrier, 
+    // does a sync_get for number of processors
+    // sets don't block...
     class Sync : public Object {
     public:
-      virtual void enter(void * data) = 0;
+      virtual void enter(const void * data) = 0;
     };
 
     class GatherData : public Object {
     public:
-      virtual void add(void * data) = 0;
-      virtual void gather(void * data) = 0;
+      virtual void add(const void * data, size_t len)=0;
+      virtual void *gather(size_t *len)=0;
     };
 
     const EbbRef<ScatterData> theRDData =
@@ -86,30 +99,50 @@ namespace ebbrt {
     };
 
     class RDData : public ScatterData {
+      void *buf;
+      size_t buf_len;
     public:
       static EbbRoot * ConstructRoot();
-      virtual void set(void * data) override;
-      virtual void get(void * data) override;
+      virtual void set(const void * data, size_t len) override;
+      virtual void *get(size_t *len) override;
     };
 
     class TaskQ : public Queue  {
+      struct el {
+	char *ptr;
+	size_t len;
+	
+	el(char *p, size_t l):ptr(p),len(l){}
+      };
+      std::queue<el> myqueue;
+
     public:
       static EbbRoot * ConstructRoot();
-      virtual int enque(void * data) override;
-      virtual void * deque(void * data) override;
+      virtual int enque(const void * data, size_t len) override;
+      virtual void * deque(size_t *len) override;
     };
 
     class TaskSync : public Sync  {
     public:
       static EbbRoot * ConstructRoot();
-      virtual void enter(void * data) override;
+      virtual void enter(const void * data) override;
     };
 
     class RWData : public GatherData {
+      // for now, bullshit, returns back one element, the gather should return 
+      // all the data, do we want to do it by returning stuff until nothing left
+      // also, we need to know how many nodes will put data in to get this right. 
+      struct el {
+	char *ptr;
+	size_t len;
+	
+	el(char *p, size_t l):ptr(p),len(l){}
+      };
+      std::queue<el> myqueue;
     public:
       static EbbRoot * ConstructRoot();
-      virtual void add(void * data) override;
-      virtual void gather(void * data) override;
+      virtual void add(const void * data, size_t len) override;
+      virtual void *gather(size_t *len) override;
     };
   }
 }

@@ -40,9 +40,10 @@ fox_new(fox_ptr* fhand_ptr, int nprocs, int procid)
 {
   struct fox_st *fh = new fox_st;
 
-  TRACE;
-  fh->context.Activate();  
   *fhand_ptr = fh;
+  // fix me, do a constructor/destructor around activate/deactivate
+  fh->context.Activate();  
+
   return 0;
 }
 
@@ -136,7 +137,7 @@ fox_broad_set(fox_ptr fhand,
   //FIXME: no broadcast stuff
   TRACE;
   assert(strcmp(key,STR_RDDATA)==0);
-  ebbrt::fox::theRDData->set((void *)__func__);
+  ebbrt::fox::theRDData->set(value, value_sz);
   return 0;
 }
 
@@ -149,7 +150,7 @@ fox_broad_get(fox_ptr fhand,
   //FIXME: no broadcast stuff
   TRACE;
   assert(strcmp(key,STR_RDDATA)==0);
-  ebbrt::fox::theRDData->get((void *)__func__);
+  *pvalue = (char *)ebbrt::fox::theRDData->get(pvalue_sz);
   return 0;
 }
 
@@ -161,7 +162,7 @@ fox_queue_set(fox_ptr fhand,
 {
   TRACE;
   assert(strcmp(key,STR_TASKS)==0);
-  ebbrt::fox::theTaskQ->enque((void *)__func__);
+  ebbrt::fox::theTaskQ->enque(value, value_sz);
   return 0;
 }
 
@@ -173,11 +174,12 @@ fox_queue_get(fox_ptr fhand,
 {
   TRACE;
   assert(strcmp(key,STR_TASKS)==0);
-  ebbrt::fox::theTaskQ->deque((void *)__func__);
+  *pvalue = (char *)ebbrt::fox::theTaskQ->deque(pvalue_sz);
   return 0;
 }
 
 extern "C"
+// round robins to different queues
 int
 fox_broad_queue_set(fox_ptr fhand,
                     const char *key, size_t key_sz,
@@ -185,10 +187,11 @@ fox_broad_queue_set(fox_ptr fhand,
 {
   TRACE;
   assert(strcmp(key,STR_TASKS)==0);
-  ebbrt::fox::theTaskQ->enque((void *)__func__);
+  ebbrt::fox::theTaskQ->enque(value, value_sz);
   return 0;
 }
 
+// adds to all 
 extern "C"
 int
 fox_dist_queue_set(fox_ptr fhand,
@@ -197,7 +200,7 @@ fox_dist_queue_set(fox_ptr fhand,
 {
   TRACE;
   assert(strcmp(key,STR_TASKS)==0);
-  ebbrt::fox::theTaskQ->enque((void *)__func__);
+  ebbrt::fox::theTaskQ->enque(value, value_sz);
   return 0;
 }
 
@@ -209,7 +212,7 @@ fox_dist_queue_get(fox_ptr fhand,
 {
   TRACE;
   assert(strcmp(key,STR_TASKS)==0);
-  ebbrt::fox::theTaskQ->deque((void *)__func__);
+  *pvalue = (char *)ebbrt::fox::theTaskQ->deque(pvalue_sz);
   return 0;
 }
 
@@ -221,7 +224,7 @@ fox_reduce_set(fox_ptr fhand,
 {
   TRACE;
   assert(strcmp(key,STR_RWDATA)==0);
-  ebbrt::fox::theRWData->add((void *)__func__);
+  ebbrt::fox::theRWData->add(value, value_sz);
   return 0;
 }
 
@@ -233,8 +236,12 @@ fox_reduce_get(fox_ptr fhand,
                void (*reduce)(void *out, void *in))
 {
   TRACE;
+  void *data;
+  size_t len;
+
   assert(strcmp(key,STR_RWDATA)==0);
-  ebbrt::fox::theRWData->gather((void *)__func__);
+  data = ebbrt::fox::theRWData->gather(&len);
+  (*reduce)(pvalue, data);
   return 0;
 }
 
@@ -245,7 +252,6 @@ fox_collect(fox_ptr fhand,
             int root, int opt)
 {
   TRACE;
-  assert(strcmp(key,STR_RWDATA)==0);
-  ebbrt::fox::theRWData->gather((void *)__func__);
+  assert(0);
   return 0;
 }
