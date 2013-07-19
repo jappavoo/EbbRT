@@ -52,21 +52,29 @@ ebbrt::fox::RDData::ConstructRoot()
   return new SharedRoot<RDData>;
 }
 
+ebbrt::EbbRef<ebbrt::fox::RDData>
+ebbrt::fox::RDData::Create()
+{
+  EbbRef<RDData> ref = EbbRef<RDData>(ebb_manager->AllocateId());
+  ebb_manager->Bind(ConstructRoot, ref);
+  return ref;
+}
+
 void
 ebbrt::fox::RDData::set(const void * data, size_t len) 
 { 
-  buf = malloc(len);
-  memcpy(buf, data, len);
-  buf_len = len;
+  assert(val_.bytes_ == 0 && val_.len_ == 0);
+  val_.bytes_ = malloc(len);
+  memcpy(val_.bytes_, data, len);
+  val_.len_ = len;
 }
 
 
 void *
 ebbrt::fox::RDData::get(size_t *len)
 { 
-  void *data = buf;
-  *len = buf_len;
-  return data;
+  *len = val_.len_;
+  return val_.bytes_;
 }
 
 

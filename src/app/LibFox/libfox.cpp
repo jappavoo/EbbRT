@@ -82,8 +82,9 @@ fox_set(fox_ptr fhand,
 
   if (o != ebbrt::EbbRef<ebbrt::fox::Object>(ebbrt::NULLID)) assert(0); // should not exist yet
   
-  // add code to allocate and a new object and put it in the hash
+  o = static_cast<ebbrt::EbbRef<ebbrt::fox::Object>>(ebbrt::fox::RDData::Create());
   // JA NOTE: THIS IS NATURAL C++ BUT DANGEROUS CO code as  value() is a deref and could fail
+  // I guess in our model this should be an exception so this should be a try block?
   o->value().set(value, value_sz);
   ebbrt::fox::theHash->set(key, o);
   return 0;
@@ -139,6 +140,7 @@ fox_sync_get(fox_ptr fhand, unsigned delta,
   //FIXME: no semaphore stuff
   TRACE;
   assert(strcmp(key,STR_TASK_SYNC)==0);
+  assert(ebbrt::fox::theTaskSync == static_cast<ebbrt::EbbRef<ebbrt::fox::Sync>>(ebbrt::fox::theHash->get(key)));
   ebbrt::fox::theTaskSync->enter((void *)__func__);
   return 0;
 }
@@ -152,6 +154,7 @@ fox_broad_set(fox_ptr fhand,
   //FIXME: no broadcast stuff
   TRACE;
   assert(strcmp(key,STR_RDDATA)==0);
+  assert(ebbrt::fox::theRDData == static_cast<ebbrt::EbbRef<ebbrt::fox::RDData>>(ebbrt::fox::theHash->get(key)));
   ebbrt::fox::theRDData->set(value, value_sz);
   return 0;
 }

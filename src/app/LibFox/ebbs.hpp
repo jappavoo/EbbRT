@@ -19,24 +19,24 @@ namespace ebbrt {
   const EbbId NULLID = 0;
   
   namespace fox {
-    class Object;
+    class RDData;
 
     class  Value {
-      char *bytes_;
+      void * bytes_;
       size_t len_;
-      friend Object;
+      friend RDData; // FIXME: I am sure there is a better way ... do it ;-)
     public:
       Value() : bytes_(NULL), len_(0) {}
-      void get(char **b, size_t *l) { *b = bytes_; *l = len_; }
-      void set(const char *b, size_t
- l) { bytes_ = (char *)b; len_ = l; }
+      void get(char **b, size_t *l) { *b = (char *)bytes_; *l = len_; }
+      void set(const char *b, size_t l) { bytes_ = (char *)b; len_ = l; }
     };
 
     class Object : public EbbRep {
-      Value val;
+    protected:
+      Value val_;
     public:
       //      Object(const char *str);
-      virtual Value value() { return val; }
+      virtual Value value() { return val_; }
     };
 
     class Dictionary : public Object {
@@ -105,6 +105,7 @@ namespace ebbrt {
       size_t buf_len;
     public:
       static EbbRoot * ConstructRoot();
+      static EbbRef<RDData> Create();
       virtual void set(const void * data, size_t len) override;
       virtual void *get(size_t *len) override;
     };
@@ -145,7 +146,7 @@ namespace ebbrt {
       static EbbRoot * ConstructRoot();
       virtual void add(const void * data, size_t len) override;
       virtual void *gather(size_t *len) override;
-    };
+    }; 
   }
 }
 
