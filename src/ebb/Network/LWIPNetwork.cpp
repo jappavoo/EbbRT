@@ -109,17 +109,17 @@ err_t eth_init(struct netif *netif) {
 }
 
 namespace {
-bool has_dhcp = false;
+bool has_addr = false;
 }
-void status_callback(struct netif *netif) {
-  has_dhcp = true;
-  char buf[80];
-  sprintf(buf, "%" U16_F ".%" U16_F ".%" U16_F ".%" U16_F "\n",
-          ip4_addr1_16(&netif->ip_addr), ip4_addr2_16(&netif->ip_addr),
-          ip4_addr3_16(&netif->ip_addr), ip4_addr4_16(&netif->ip_addr));
-  ebbrt::lrt::console::write(buf);
-  static_cast<ebbrt::EbbRef<ebbrt::LWIPNetwork> >(ebbrt::network)->EmptyQueue();
-}
+// void status_callback(struct netif *netif) {
+//   has_addr = true;
+//   char buf[80];
+//   sprintf(buf, "%" U16_F ".%" U16_F ".%" U16_F ".%" U16_F "\n",
+//           ip4_addr1_16(&netif->ip_addr), ip4_addr2_16(&netif->ip_addr),
+//           ip4_addr3_16(&netif->ip_addr), ip4_addr4_16(&netif->ip_addr));
+//   ebbrt::lrt::console::write(buf);
+//   static_cast<ebbrt::EbbRef<ebbrt::LWIPNetwork> >(ebbrt::network)->EmptyQueue();
+// }
 }
 
 extern "C" int lwip_printf(const char *fmt, ...) {
@@ -146,14 +146,28 @@ ebbrt::LWIPNetwork::LWIPNetwork(EbbId id) : Network{ id } {
   lwip_init();
 
   lrt::console::write("LWIP Inited\n");
-  if (netif_add(&netif_, nullptr, nullptr, nullptr, nullptr, eth_init,
+  auto mac_addr = ethernet->MacAddress();
+  struct ip_addr ip;
+  IP4_ADDR(&ip, 10, 255, mac_addr[4], mac_addr[5]);
+  struct ip_addr netmask;
+  IP4_ADDR(&netmask, 255, 255, 0, 0);
+  struct ip_addr gw;
+  IP4_ADDR(&gw, 10, 255, 0, 1);
+  if (netif_add(&netif_, &ip, &netmask, &gw, nullptr, eth_init,
                 ethernet_input) == nullptr) {
     throw std::runtime_error("Failed to create interface");
   }
   netif_set_default(&netif_);
 
-  netif_set_status_callback(&netif_, status_callback);
-  dhcp_start(&netif_);
+  netif_set_up(&netif_);
+
+  has_addr = true;
+  char buf[80];
+  sprintf(buf, "%" U16_F ".%" U16_F ".%" U16_F ".%" U16_F "\n",
+    ip4_addr1_16(&netif_.ip_addr), ip4_addr2_16(&netif_.ip_addr),
+    ip4_addr3_16(&netif_.ip_addr), ip4_addr4_16(&netif_.ip_addr));
+  ebbrt::lrt::console::write(buf);
+
   udp_bind(&send_pcb_, IP_ADDR_ANY, 0);
 
   tcp_timer_func_ = [&]() {
@@ -168,6 +182,7 @@ ebbrt::LWIPNetwork::LWIPNetwork(EbbId id) : Network{ id } {
     etharp_tmr();
     timer->Wait(std::chrono::milliseconds{ ARP_TMR_INTERVAL }, arp_timer_func_);
   };
+#if LWIP_DHCP
   dhcp_coarse_timer_func_ = [&]() {
     dhcp_coarse_tmr();
     timer->Wait(std::chrono::milliseconds{ DHCP_COARSE_TIMER_MSECS },
@@ -178,6 +193,7 @@ ebbrt::LWIPNetwork::LWIPNetwork(EbbId id) : Network{ id } {
     timer->Wait(std::chrono::milliseconds{ DHCP_FINE_TIMER_MSECS },
                 dhcp_fine_timer_func_);
   };
+#endif
   dns_timer_func_ = [&]() {
     dns_tmr();
     timer->Wait(std::chrono::milliseconds{ DNS_TMR_INTERVAL }, dns_timer_func_);
@@ -256,6 +272,7 @@ void ebbrt::LWIPNetwork::InitEcho() { echo_init(); }
 uint16_t
 ebbrt::LWIPNetwork::RegisterUDP(uint16_t port,
                                 std::function<void(Buffer, NetworkId)> cb) {
+  lrt::console::write("Register\n");
   auto udp_pcb = udp_new();
   LRT_ASSERT(udp_pcb != nullptr);
   udp_bind(udp_pcb, IP_ADDR_ANY, port);
@@ -289,7 +306,7 @@ ebbrt::LWIPNetwork::RegisterUDP(uint16_t port,
 }
 
 void ebbrt::LWIPNetwork::SendUDP(Buffer buffer, NetworkId to, uint16_t port) {
-  if (!has_dhcp) {
+  if (!has_addr) {
     queue_.push(
         std::make_tuple(std::move(buffer), std::move(to), std::move(port)));
   } else {
@@ -318,4 +335,5 @@ void ebbrt::LWIPNetwork::EmptyQueue() {
             std::get<2>(std::move(tup)));
     queue_.pop();
   }
+  lrt::console::write("Queue emptied\n");
 }
