@@ -149,6 +149,7 @@ ebbrt::Future<void> ebbrt::Matrix::Randomize() {
       auto buf = message_manager->Alloc(sizeof(msg));
       std::memcpy(buf.data(), static_cast<void *>(&msg), sizeof(msg));
       message_manager->Send(backend, ebbid_, std::move(buf));
+      //      node_allocator->SetStatus(backend, (char *)"busy");
     }
   };
 
@@ -173,6 +174,7 @@ ebbrt::Future<double> ebbrt::Matrix::Get(size_t row, size_t column) {
     auto buf = message_manager->Alloc(sizeof(msg));
     std::memcpy(buf.data(), static_cast<void *>(&msg), sizeof(msg));
     message_manager->Send(backends_[index], ebbid_, std::move(buf));
+    //    node_allocator->SetStatus(backends_[index], "busy");
   };
 
   auto it = get_promise_map_.emplace(std::piecewise_construct,
@@ -195,6 +197,7 @@ ebbrt::Future<void> ebbrt::Matrix::Set(size_t row, size_t column, double value) 
     auto buf = message_manager->Alloc(sizeof(msg));
     std::memcpy(buf.data(), static_cast<void *>(&msg), sizeof(msg));
     message_manager->Send(backends_[index], ebbid_, std::move(buf));
+    //    node_allocator->SetStatus(backends_[index], "busy");
   };
 
   auto it = set_promise_map_.emplace(std::piecewise_construct,
@@ -218,6 +221,7 @@ ebbrt::Future<double> ebbrt::Matrix::Sum() {
       auto buf = message_manager->Alloc(sizeof(msg));
       std::memcpy(buf.data(), static_cast<void *>(&msg), sizeof(msg));
       message_manager->Send(backend, ebbid_, std::move(buf));
+      //      node_allocator->SetStatus(backend, "busy");
     }
   };
 
@@ -322,6 +326,7 @@ void ebbrt::Matrix::HandleMessage(NetworkId from, Buffer buf) {
     assert(0);
     break;
   }
+  //  node_allocator->SetStatus(from, "ebbrt");
 #elif __ebbrt__
   LRT_ASSERT(buf.length() >= sizeof(message_type));
 

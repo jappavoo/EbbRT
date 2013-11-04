@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#set -x
 if [[ $(type -p khctl ) ]]; then
    declare SESA_UTIL=khctl
 fi

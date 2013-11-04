@@ -29,7 +29,7 @@ public:
   virtual unsigned int Allocate(std::string app, std::string config,
                                 size_t num = 1) = 0;
   virtual void Free(unsigned int id) = 0;
-
+  virtual void SetStatus(NetworkId node, std::string status) = 0;
 protected:
   NodeAllocator(EbbId id) : EbbRep{ id } {}
 };

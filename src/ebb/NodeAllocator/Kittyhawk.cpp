@@ -61,3 +61,7 @@ void ebbrt::Kittyhawk::Free(unsigned int tag) {
     printf("%s", out);
   pclose(fp);
 }
+
+void ebbrt::Kittyhawk::SetStatus(NetworkId node, std::string status) {
+  printf("%02d %s\n", node.addr & 0xff, status.c_str());
+}

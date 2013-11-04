@@ -30,6 +30,7 @@ public:
   unsigned int Allocate(std::string app, std::string config,
                         size_t num = 1) override;
   void Free(unsigned int id) override;
+  void SetStatus(NetworkId node, std::string status) override;
 };
 }
 

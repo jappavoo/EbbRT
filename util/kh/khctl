@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#set -x
 #####################################
 #
 #  IBM Coporation
@@ -306,11 +306,35 @@ function SESAlistApp
   done
 }
 
+SESAinode()
+{
+  local path=$1
+
+  if [[ -z $path || ! -a $path ]]; then return; fi
+
+  if [[ -d $path ]]; then inode=$(ls -id $1)
+  else inode=$(ls -i $path); fi
+  echo ${inode%% *}
+}
+
+# As per "standards" lookuping up on the net
+# the following are locally admined mac address
+# ranges
+#
+#x2-xx-xx-xx-xx-xx
+#x6-xx-xx-xx-xx-xx
+#xA-xx-xx-xx-xx-xx
+#xE-xx-xx-xx-xx-xx
+# format we use 02:f(<inode>):nodenum
+# ip then uses prefix 10.0 with last to octets of mac
+
+SESAMACSIG=$(printf "%016x" $(SESAinode $KHBASEDIR))
+SESAMACPREFIX="02:${SESAMACSIG:10:2}:${SESAMACSIG:12:2}:${SESAMACSIG:14:2}:${SESAMACSIG:8:2}"
+
 function SESAgenerateMac()
 {
-  local mac
-  printf -v mac 'DE:AD:BE:EF:%02X:%02X' $((RANDOM%256)) $((RANDOM%256))
-  echo $mac
+  local nodeid=$(printf "%02x" $1)
+  echo $SESAMACPREFIX:$nodeid
 }
 
 SESAconfigNodes()
@@ -386,7 +410,7 @@ SESAconfigNodes()
     # external network
     if (( $xnet == 1 ))
     then
-      mac=$(SESAgenerateMac)
+      mac=$(SESAgenerateMac $n)
       netcmd="$netcmd -net nic,vlan=1,model=virtio,macaddr=$mac -net bridge,vlan=1,br=brX"
       echo "$n: network_external eth0 $mac"
     fi
@@ -394,7 +418,7 @@ SESAconfigNodes()
     # internal network
     if (( $inet == 1 ))
     then
-      mac=$(SESAgenerateMac)
+      mac=$(SESAgenerateMac $n)
       netcmd="$netcmd -net nic,vlan=2,model=virtio,macaddr=$mac -net bridge,vlan=2,br=brI"
       echo "$n: network_internal eth1 $mac"
     fi

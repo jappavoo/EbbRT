@@ -1,0 +1,20 @@
+#!/bin/bash
+
+export SAGE_ROOT=/home/jappavoo/Work/sage/sage-5.12
+export PATH=$PATH:$SAGE_ROOT
+
+ts=$(date +'%d%m%y:%T')
+localsizes="10 20 40 80 100 200 400 1000 2000 4000 8000"
+remotesizes="$localsizes 10000 12000"
+
+echo "Gathering results for sage matrix tests SAGE_ROOT=$SAGE_ROOT PATH=$PATH $(type -a sage)"
+
+echo "Running: ./perf \"$localsizes\"  Matrix_ebblocal_real_double_dense > local.$$.$ts.res"
+#./perf "$localsizes"  Matrix_ebblocal_real_double_dense > local.$$.$ts.res
+
+echo "Running: ./perf \"$localsizes\"  Native.Matrix_real_double_dense > native.$$.$ts.res" 
+#./perf "$localsizes"  Native.Matrix_real_double_dense > native.$$.$ts.res
+
+echo "Running: ./perf \"$remotesizes\" Matrix_ebbremote_real_double_dense > remote.$$.$ts.res"
+./perf "$remotesizes" Matrix_ebbremote_real_double_dense > remote.$$.$ts.res
+

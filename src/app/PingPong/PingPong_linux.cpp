@@ -83,26 +83,20 @@ main(int argc, char* argv[] )
     ebbrt::EbbRef<ebbrt::Config>(ebbrt::ebb_manager->AllocateId());
   ebbrt::ebb_manager->Bind(ebbrt::Fdt::ConstructRoot, ebbrt::config_handle);
 
-
-  ebbrt::message_manager->StartListening();
-
-
   char *ptr = ebbrt::app::LoadFile(argv[1], &n);
   ebbrt::config_handle->SetConfig(ptr);
-  uint32_t spaceid = ebbrt::config_handle->GetInt32("/", "space_id");
   ebbrt::config_handle->SetString("/", "frontend_ip", "10.255.0.1");
 
-
+  ebbrt::message_manager->StartListening();
 #ifdef UDP
-  std::string tmppath = "/scratch/"; // Ugh..
   // update configuration
   const char *outptr = (const char *)ebbrt::config_handle->GetConfig();
-  std::string newconfig = tmppath + std::to_string(spaceid);
-  std::ofstream outfile(newconfig.c_str(),std::ofstream::binary);
+  auto tmpfilename = tmpnam(nullptr);
+  std::ofstream outfile(tmpfilename,std::ofstream::binary);
   outfile.write (outptr,fdt_totalsize(outptr));
   outfile.close();
 
-  ebbrt::node_allocator->Allocate(bin_path, newconfig, node_count);
+  ebbrt::node_allocator->Allocate(bin_path, tmpfilename, node_count);
 #endif
 
   context.Loop(-1);

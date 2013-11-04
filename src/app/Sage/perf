@@ -1,0 +1,43 @@
+#!/usr/bin/env sage 
+
+from sage.all import *
+import sage.matrix.matrix_real_double_dense as Native
+from  ebb_matrix import *
+
+# m = LocalEbbMatrix(100)
+# print "Randomize Local Matrix"
+# timeit('m.randomize()', number=1, repeat=1)
+
+
+# import sys
+# from sage.all import *
+
+# from ebb_matrix import *
+
+if len(sys.argv) != 3:
+    print "Usage: %s <'space seperated list of sizes'> <matrixtype>"%sys.argv[0]
+    print "Outputs the tests"
+    sys.exit(1)
+
+vals = sys.argv[1].split(" ")
+
+theMatrix = eval(sys.argv[2]);
+
+for n in vals:
+  print "Iteration: " + str(i) + " n=" + str(n)
+
+  print "Instantiate:"
+  timeit('theMatrix(Mat(RDF,n),0,True,True)', number=3)
+  m = theMatrix(Mat(RDF,n),0,True,True)
+
+  print "First Access to 0,0 element:"
+  timeit('m[0,0]', number=1)
+
+  print "Successive Accesses to 0,0 element:"
+  timeit('m[0,0]', number=3)
+  print m[0,0]
+
+  print "Randomize:"
+  timeit('m.randomize()', number=3)
+
+  print m[0,0]
