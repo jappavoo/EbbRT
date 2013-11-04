@@ -24,6 +24,7 @@
 
 namespace ebbrt {
 class Kittyhawk : public NodeAllocator {
+  char *khdir;
 public:
   static EbbRoot *ConstructRoot();
   Kittyhawk(EbbId id);

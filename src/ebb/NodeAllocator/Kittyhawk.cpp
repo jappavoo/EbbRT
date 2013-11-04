@@ -19,15 +19,37 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <climits>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 #include "ebb/SharedRoot.hpp"
 #include "ebb/NodeAllocator/Kittyhawk.hpp"
 #include "ebb/EventManager/EventManager.hpp"
+
+#include <glob.h>
+#include <vector>
+#include <string>
+
+inline void rmglob(const std::string& pat){
+  using namespace std;
+  glob_t glob_result;
+  glob(pat.c_str(),GLOB_TILDE,NULL,&glob_result);
+  for(unsigned int i=0;i<glob_result.gl_pathc;++i){
+    unlink(glob_result.gl_pathv[i]);
+  }
+  globfree(&glob_result);
+}
 
 ebbrt::EbbRoot *ebbrt::Kittyhawk::ConstructRoot() {
   return new SharedRoot<Kittyhawk>();
 }
 
-ebbrt::Kittyhawk::Kittyhawk(EbbId id) : NodeAllocator{ id } {}
+ebbrt::Kittyhawk::Kittyhawk(EbbId id) : NodeAllocator{ id } 
+{
+  khdir  = getenv("KHCTL_BASEDIR");
+}
 
 
 #include <iostream>
@@ -63,5 +85,17 @@ void ebbrt::Kittyhawk::Free(unsigned int tag) {
 }
 
 void ebbrt::Kittyhawk::SetStatus(NetworkId node, std::string status) {
-  printf("%02d %s\n", node.addr & 0xff, status.c_str());
+  if (khdir ) {
+    char buf[160];
+    int n=snprintf(buf, 169, "%s/khmonstate/%d *", khdir, node.addr & 0xff);
+    int fd;
+    
+    if (n &&  n<160) rmglob(buf);
+    
+    n=snprintf(buf, 169, "%s/khmonstate/%d %s", khdir, node.addr & 0xff, status.c_str());
+    if (n && n<160) {
+      fd = open(buf, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+      if (fd) close(fd);
+    }
+  }
 }

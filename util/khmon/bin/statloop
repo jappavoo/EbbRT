@@ -1,16 +1,29 @@
 #!/bin/bash
-#set -x
+set -x
 monhost=$1
 dir=$2
 
-ssh -q -t khmon@$monhost "cat /dev/bgtty1" | while read line
-do    
-  line=${line#*[}
-  line=${line%%]*}
-  if [[ -n $line ]]
-  then
-     echo  "$dir/$line"
-     touch "$dir/$line"
-  fi
-done
-
+if [[ $monhost == LOCAL ]]; then
+  monfile=$3
+  tail -f -s0  $monfile | while read line
+  do    
+    line=${line#*[}
+    line=${line%%]*}
+    if [[ -n $line ]]
+    then
+       echo  "$dir/$line"
+       touch "$dir/$line"
+    fi
+  done
+else
+  ssh -q -t khmon@$monhost "cat /dev/bgtty1" | while read line
+  do    
+    line=${line#*[}
+    line=${line%%]*}
+    if [[ -n $line ]]
+    then
+       echo  "$dir/$line"
+       touch "$dir/$line"
+    fi
+  done
+fi

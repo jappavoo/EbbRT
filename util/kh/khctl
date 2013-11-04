@@ -250,6 +250,7 @@ function SESAcleanApp
   do
     locked_touch_nodes "$j" "$FREEOWNER" "$FREEPNET"\
       "$FREEINETFLG" "$FREEXNETFLG" "$FREECONID"
+      rm $KHBASEDIR/khmonstate/$j\ * > /dev/null 2>&1
   done
   unlock tuples
 

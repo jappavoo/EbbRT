@@ -148,8 +148,8 @@ ebbrt::Future<void> ebbrt::Matrix::Randomize() {
       index++;
       auto buf = message_manager->Alloc(sizeof(msg));
       std::memcpy(buf.data(), static_cast<void *>(&msg), sizeof(msg));
+      node_allocator->SetStatus(backend, (char *)"busy");
       message_manager->Send(backend, ebbid_, std::move(buf));
-      //      node_allocator->SetStatus(backend, (char *)"busy");
     }
   };
 
@@ -173,8 +173,8 @@ ebbrt::Future<double> ebbrt::Matrix::Get(size_t row, size_t column) {
     get_message msg { GET, op_id, size_, index, row % MAX_DIM, column % MAX_DIM};
     auto buf = message_manager->Alloc(sizeof(msg));
     std::memcpy(buf.data(), static_cast<void *>(&msg), sizeof(msg));
+    node_allocator->SetStatus(backends_[index], "busy");
     message_manager->Send(backends_[index], ebbid_, std::move(buf));
-    //    node_allocator->SetStatus(backends_[index], "busy");
   };
 
   auto it = get_promise_map_.emplace(std::piecewise_construct,
@@ -196,8 +196,8 @@ ebbrt::Future<void> ebbrt::Matrix::Set(size_t row, size_t column, double value) 
     set_message msg { SET, op_id, size_, index, row % MAX_DIM, column % MAX_DIM, value};
     auto buf = message_manager->Alloc(sizeof(msg));
     std::memcpy(buf.data(), static_cast<void *>(&msg), sizeof(msg));
+    node_allocator->SetStatus(backends_[index], "busy");
     message_manager->Send(backends_[index], ebbid_, std::move(buf));
-    //    node_allocator->SetStatus(backends_[index], "busy");
   };
 
   auto it = set_promise_map_.emplace(std::piecewise_construct,
@@ -220,8 +220,8 @@ ebbrt::Future<double> ebbrt::Matrix::Sum() {
       index++;
       auto buf = message_manager->Alloc(sizeof(msg));
       std::memcpy(buf.data(), static_cast<void *>(&msg), sizeof(msg));
+      node_allocator->SetStatus(backend, "busy");
       message_manager->Send(backend, ebbid_, std::move(buf));
-      //      node_allocator->SetStatus(backend, "busy");
     }
   };
 
@@ -279,7 +279,7 @@ void ebbrt::Matrix::Initialize(size_t size, size_t index) {
 void ebbrt::Matrix::HandleMessage(NetworkId from, Buffer buf) {
 #ifdef __linux__
   assert(buf.length() >= sizeof(message_type));
-
+  node_allocator->SetStatus(from, "ebbrt");
   auto op = reinterpret_cast<const message_type *>(buf.data());
   switch (*op) {
   case message_type::CONNECT:
@@ -326,7 +326,6 @@ void ebbrt::Matrix::HandleMessage(NetworkId from, Buffer buf) {
     assert(0);
     break;
   }
-  //  node_allocator->SetStatus(from, "ebbrt");
 #elif __ebbrt__
   LRT_ASSERT(buf.length() >= sizeof(message_type));
 
